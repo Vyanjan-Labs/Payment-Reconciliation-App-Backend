@@ -3,6 +3,8 @@ const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const pool = require('./config/db');
+const authRoutes = require('./modules/auth/auth.routes');
+const errorHandler = require('./middleware/errorHandler');
 
 const app = express();
 
@@ -19,5 +21,9 @@ app.get('/health', async (req, res) => {
     res.status(503).json({ status: 'error', database: 'unavailable' });
   }
 });
+
+app.use('/api/auth', authRoutes);
+
+app.use(errorHandler);
 
 module.exports = app;
