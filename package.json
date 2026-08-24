@@ -9,7 +9,9 @@
     "migrate:create": "node-pg-migrate create -m src/db/migrations -j sql",
     "migrate:up": "node-pg-migrate up -m src/db/migrations",
     "migrate:down": "node-pg-migrate down -m src/db/migrations",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "migrate:test:up": "node-pg-migrate up -m src/db/migrations --envPath .env.test",
+    "pretest": "pnpm run migrate:test:up",
+    "test": "NODE_ENV=test jest"
   },
   "repository": {
     "type": "git",
@@ -33,8 +35,10 @@
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
+    "jest": "^30.4.2",
     "node-pg-migrate": "^9.0.0",
-    "nodemon": "^3.1.14"
+    "nodemon": "^3.1.14",
+    "supertest": "^7.2.2"
   },
   "packageManager": "pnpm@11.22.0+sha512.1ff870c4c6133dfd88fb2afc46dd13d47f09c9794b438c6fdb47ca98caf3bc16381ee0be93a091b8e3824cf01f889f46d7d9e20910fb0be1ab0fb5baa80dd621"
 }
