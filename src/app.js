@@ -7,6 +7,7 @@ const authRoutes = require('./modules/auth/auth.routes');
 const invoiceRoutes = require('./modules/invoices/invoice.routes');
 const paymentRoutes = require('./modules/payments/payment.routes');
 const reconciliationRoutes = require('./modules/reconciliation/reconciliation.routes');
+const reportRoutes = require('./modules/reports/report.routes');
 const errorHandler = require('./middleware/errorHandler');
 
 const app = express();
@@ -29,6 +30,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/invoices', invoiceRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/reconciliation', reconciliationRoutes);
+app.use('/api/reports', reportRoutes);
 
 app.use(errorHandler);
 
