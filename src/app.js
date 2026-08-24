@@ -4,6 +4,7 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 const pool = require('./config/db');
 const authRoutes = require('./modules/auth/auth.routes');
+const invoiceRoutes = require('./modules/invoices/invoice.routes');
 const errorHandler = require('./middleware/errorHandler');
 
 const app = express();
@@ -23,6 +24,7 @@ app.get('/health', async (req, res) => {
 });
 
 app.use('/api/auth', authRoutes);
+app.use('/api/invoices', invoiceRoutes);
 
 app.use(errorHandler);
 

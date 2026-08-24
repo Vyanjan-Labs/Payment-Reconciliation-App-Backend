@@ -6,9 +6,22 @@ const env = require('../../config/env');
 
 const SALT_ROUNDS = 10;
 
-async function signup({ name, email, password }) {
+// The database uses snake_case columns; the API responds in camelCase.
+// Keeping that translation here means the rest of the app never sees snake_case.
+function toUserResponse(user) {
+  return {
+    id: user.id,
+    firstName: user.first_name,
+    lastName: user.last_name,
+    email: user.email,
+    createdAt: user.created_at,
+  };
+}
+
+async function signup({ firstName, lastName, email, password }) {
   const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
-  return authRepository.createUser({ name, email, passwordHash });
+  const user = await authRepository.createUser({ firstName, lastName, email, passwordHash });
+  return toUserResponse(user);
 }
 
 async function login({ email, password }) {
@@ -28,7 +41,7 @@ async function login({ email, password }) {
 
   return {
     token,
-    user: { id: user.id, name: user.name, email: user.email },
+    user: toUserResponse(user),
   };
 }
 
@@ -37,7 +50,7 @@ async function getProfile(userId) {
   if (!user) {
     throw new AppError('User not found', 404);
   }
-  return user;
+  return toUserResponse(user);
 }
 
 module.exports = { signup, login, getProfile };
