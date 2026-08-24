@@ -5,6 +5,7 @@ const morgan = require('morgan');
 const pool = require('./config/db');
 const authRoutes = require('./modules/auth/auth.routes');
 const invoiceRoutes = require('./modules/invoices/invoice.routes');
+const paymentRoutes = require('./modules/payments/payment.routes');
 const errorHandler = require('./middleware/errorHandler');
 
 const app = express();
@@ -25,6 +26,7 @@ app.get('/health', async (req, res) => {
 
 app.use('/api/auth', authRoutes);
 app.use('/api/invoices', invoiceRoutes);
+app.use('/api/payments', paymentRoutes);
 
 app.use(errorHandler);
 

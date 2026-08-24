@@ -1,0 +1,4 @@
+transaction_id,payment_date,amount,reference_number,payer_name,description
+TXN20260801001,2026-08-01,5000.00,INV-1001,Acme Corp,Payment for invoice 1001
+TXN20260802002,2026-08-02,1234.56,,Ramesh Traders,NEFT transfer
+TXN20260803003,not-a-date,100.00,INV-9999,Bad Row Co,Invalid date to test error handling
