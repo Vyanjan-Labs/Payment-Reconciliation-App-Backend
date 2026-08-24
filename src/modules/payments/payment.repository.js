@@ -33,6 +33,8 @@ async function bulkInsert(rows) {
   return result.rows.map((r) => r.transaction_id);
 }
 
+
+
 async function list({ limit = 50, page = 1 } = {}) {
   const safeLimit = Math.min(Number(limit) || 50, 100);
   const safePage = Math.max(Number(page) || 1, 1);

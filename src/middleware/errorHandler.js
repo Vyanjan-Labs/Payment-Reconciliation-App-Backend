@@ -1,6 +1,13 @@
+const DUPLICATE_MESSAGES = {
+  users_email_key: 'That email is already registered',
+  payments_transaction_id_key: 'That transaction has already been imported',
+  matches_invoice_id_payment_id_key: 'This invoice and payment are already matched to each other',
+};
+
 module.exports = (err, req, res, next) => {
   if (err.code === '23505') {
-    return res.status(409).json({ error: 'That email is already registered' });
+    const message = DUPLICATE_MESSAGES[err.constraint] || 'This already exists';
+    return res.status(409).json({ error: message });
   }
 
   if (err.statusCode) {
