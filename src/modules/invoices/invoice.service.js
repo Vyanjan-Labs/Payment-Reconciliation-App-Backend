@@ -1,4 +1,6 @@
 const invoiceRepository = require('./invoice.repository');
+const { parseFile } = require('../../utils/fileParser');
+const { invoiceRowSchema } = require('./invoice.validation');
 const AppError = require('../../utils/AppError');
 
 // The database uses snake_case columns; the API responds in camelCase.
@@ -54,4 +56,47 @@ async function deleteInvoice(id) {
   await invoiceRepository.remove(id);
 }
 
-module.exports = { createInvoice, listInvoices, getInvoice, updateInvoice, deleteInvoice };
+async function uploadInvoicesFile(file) {
+  const rawRows = parseFile(file.buffer, file.originalname);
+
+  const validRows = [];
+  const invalidRows = [];
+
+  rawRows.forEach((row, index) => {
+    const { error, value } = invoiceRowSchema.validate(row, { abortEarly: false });
+    if (error) {
+      invalidRows.push({
+        row: index + 2, // +1 for 0-based index, +1 for the header row
+        reason: error.details.map((detail) => detail.message).join(', '),
+      });
+      return;
+    }
+    validRows.push(value);
+  });
+
+  const insertedInvoiceNumbers = await invoiceRepository.bulkInsert(validRows);
+  const insertedSet = new Set(insertedInvoiceNumbers);
+
+  const duplicateRows = validRows
+    .filter((row) => !insertedSet.has(row.invoice_number))
+    .map((row) => ({
+      invoice_number: row.invoice_number,
+      reason: 'Duplicate invoice_number, already exists',
+    }));
+
+  return {
+    totalRows: rawRows.length,
+    insertedRows: insertedInvoiceNumbers.length,
+    duplicateRows,
+    invalidRows,
+  };
+}
+
+module.exports = {
+  createInvoice,
+  listInvoices,
+  getInvoice,
+  updateInvoice,
+  deleteInvoice,
+  uploadInvoicesFile,
+};

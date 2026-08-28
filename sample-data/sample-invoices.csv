@@ -1,0 +1,4 @@
+invoice_number,customer_name,amount,invoice_date,due_date
+INV-5001,Orion Textiles,3200.00,2026-08-10,2026-09-10
+INV-5002,Kavya Enterprises,1750.50,2026-08-12,
+INV-5003,Bad Row Co,not-a-number,2026-08-13,2026-09-13

@@ -1,4 +1,5 @@
 const invoiceService = require('./invoice.service');
+const AppError = require('../../utils/AppError');
 
 async function create(req, res) {
   const invoice = await invoiceService.createInvoice(req.body);
@@ -25,4 +26,12 @@ async function remove(req, res) {
   res.status(204).send();
 }
 
-module.exports = { create, list, getOne, update, remove };
+async function upload(req, res) {
+  if (!req.file) {
+    throw new AppError('No file uploaded. Attach a file under the "file" field.', 400);
+  }
+  const summary = await invoiceService.uploadInvoicesFile(req.file);
+  res.status(201).json(summary);
+}
+
+module.exports = { create, list, getOne, update, remove, upload };

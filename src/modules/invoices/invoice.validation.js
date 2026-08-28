@@ -16,4 +16,14 @@ const updateInvoiceSchema = Joi.object({
   dueDate: Joi.date().iso().allow(null),
 }).min(1);
 
-module.exports = { createInvoiceSchema, updateInvoiceSchema };
+// For bulk CSV/Excel upload - snake_case, matching the documented file
+// template directly (same approach as payment.validation.js).
+const invoiceRowSchema = Joi.object({
+  invoice_number: Joi.string().max(100).required(),
+  customer_name: Joi.string().max(255).required(),
+  amount: Joi.number().positive().precision(2).required(),
+  invoice_date: Joi.date().iso().required(),
+  due_date: Joi.date().iso().empty('').allow(null),
+});
+
+module.exports = { createInvoiceSchema, updateInvoiceSchema, invoiceRowSchema };

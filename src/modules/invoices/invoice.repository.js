@@ -10,6 +10,33 @@ async function create({ invoiceNumber, customerName, amount, invoiceDate, dueDat
   return result.rows[0];
 }
 
+const UPLOAD_COLUMNS = ['invoice_number', 'customer_name', 'amount', 'invoice_date', 'due_date'];
+
+// Rows here are snake_case, straight from the CSV/Excel template - same
+// approach as payment.repository.js's bulkInsert.
+async function bulkInsert(rows) {
+  if (rows.length === 0) {
+    return [];
+  }
+
+  const values = [];
+  const valueGroups = rows.map((row, i) => {
+    const base = i * UPLOAD_COLUMNS.length;
+    UPLOAD_COLUMNS.forEach((column) => values.push(row[column] ?? null));
+    return `(${UPLOAD_COLUMNS.map((_, j) => `$${base + j + 1}`).join(', ')})`;
+  });
+
+  const result = await pool.query(
+    `INSERT INTO invoices (${UPLOAD_COLUMNS.join(', ')})
+     VALUES ${valueGroups.join(', ')}
+     ON CONFLICT (invoice_number) DO NOTHING
+     RETURNING invoice_number`,
+    values
+  );
+
+  return result.rows.map((r) => r.invoice_number);
+}
+
 async function findById(id) {
   const result = await pool.query('SELECT * FROM invoices WHERE id = $1', [id]);
   return result.rows[0] || null;
@@ -96,4 +123,4 @@ async function remove(id) {
   await pool.query('DELETE FROM invoices WHERE id = $1', [id]);
 }
 
-module.exports = { create, findById, list, update, hasConfirmedMatches, remove };
+module.exports = { create, bulkInsert, findById, list, update, hasConfirmedMatches, remove };

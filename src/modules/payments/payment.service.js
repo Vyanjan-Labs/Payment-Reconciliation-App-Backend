@@ -1,5 +1,5 @@
 const paymentRepository = require('./payment.repository');
-const { parseFile } = require('./payment.parser');
+const { parseFile } = require('../../utils/fileParser');
 const { paymentRowSchema } = require('./payment.validation');
 const AppError = require('../../utils/AppError');
 
