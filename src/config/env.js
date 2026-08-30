@@ -13,4 +13,5 @@ module.exports = {
   databaseUrl: process.env.DATABASE_URL,
   jwtSecret: process.env.JWT_SECRET,
   jwtExpiresIn: '7d',
+  frontendOrigin: process.env.FRONTEND_ORIGIN || 'http://localhost:3001',
 };

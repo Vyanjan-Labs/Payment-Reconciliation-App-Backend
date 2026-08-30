@@ -9,6 +9,7 @@ const router = express.Router();
 
 router.post('/signup', validateRequest(signupSchema), asyncHandler(authController.signup));
 router.post('/login', validateRequest(loginSchema), asyncHandler(authController.login));
+router.post('/logout', asyncHandler(authController.logout));
 router.get('/me', authMiddleware, asyncHandler(authController.me));
 
 module.exports = router;

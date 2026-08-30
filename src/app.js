@@ -1,8 +1,10 @@
 const express = require('express');
 const cors = require('cors');
+const cookieParser = require('cookie-parser');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const pool = require('./config/db');
+const env = require('./config/env');
 const authRoutes = require('./modules/auth/auth.routes');
 const invoiceRoutes = require('./modules/invoices/invoice.routes');
 const paymentRoutes = require('./modules/payments/payment.routes');
@@ -13,7 +15,10 @@ const errorHandler = require('./middleware/errorHandler');
 const app = express();
 
 app.use(helmet());
-app.use(cors());
+// credentials: true + a specific origin (not '*') is required for the browser
+// to accept the httpOnly auth cookie set on login.
+app.use(cors({ origin: env.frontendOrigin, credentials: true }));
+app.use(cookieParser());
 app.use(morgan('dev'));
 app.use(express.json());
 
