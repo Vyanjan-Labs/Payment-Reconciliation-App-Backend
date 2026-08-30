@@ -2,9 +2,19 @@ const pool = require('../../config/db');
 
 const FUZZY_DATE_WINDOW_DAYS = 7;
 
+// Excludes any payment that already has a match row, regardless of that
+// match's status. Without this, a payment stuck at 'partially_matched'
+// (e.g. it overpaid, so only part of its money got used) or one whose
+// only match was rejected would be picked up on every future run, produce
+// the exact same decision again, and crash trying to insert a duplicate
+// (invoice_id, payment_id) pair. Anything with existing match history is
+// left to manual review (candidates/manual match) instead of auto-retried.
 async function getUnmatchedPayments() {
   const result = await pool.query(
-    `SELECT * FROM payments WHERE status IN ('unmatched', 'partially_matched') ORDER BY id`
+    `SELECT p.* FROM payments p
+     WHERE p.status IN ('unmatched', 'partially_matched')
+       AND NOT EXISTS (SELECT 1 FROM matches m WHERE m.payment_id = p.id)
+     ORDER BY p.id`
   );
   return result.rows;
 }

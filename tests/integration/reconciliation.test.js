@@ -184,3 +184,30 @@ describe('GET /api/reconciliation/candidates', () => {
     expect(response.body.candidates[0].invoiceId).toBe(invoice.id);
   });
 });
+
+describe('re-running reconciliation after an overpayment is confirmed', () => {
+  test('does not crash on a payment left partially_matched with an existing match', async () => {
+    await createInvoice({ invoiceNumber: 'INV-R9', amount: 500 });
+    await uploadPayment({ transactionId: 'TXN-R9', amount: 600, referenceNumber: 'INV-R9' });
+
+    const firstRun = await authed(request(app).post('/api/reconciliation/run'));
+    expect(firstRun.status).toBe(200);
+
+    // confirming applies only the invoice's outstanding amount (500 of the
+    // 600 paid), leaving the payment stuck at partially_matched with a
+    // match row that already occupies this exact (invoice, payment) pair
+    const needsReview = await authed(request(app).get('/api/reconciliation/matches?status=needs_review'));
+    const match = needsReview.body.matches[0];
+    await authed(request(app).patch(`/api/reconciliation/matches/${match.id}`)).send({
+      status: 'confirmed',
+    });
+
+    // this used to crash with a 409 - the payment stayed eligible for
+    // reprocessing and the engine tried to insert a duplicate match row
+    const secondRun = await authed(request(app).post('/api/reconciliation/run'));
+
+    expect(secondRun.status).toBe(200);
+    expect(secondRun.body.exactMatches).toBe(0);
+    expect(secondRun.body.fuzzyMatchesNeedingReview).toBe(0);
+  });
+});
