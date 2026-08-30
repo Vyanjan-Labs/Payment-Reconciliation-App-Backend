@@ -11,7 +11,7 @@
     "migrate:down": "node-pg-migrate down -m src/db/migrations",
     "migrate:test:up": "node-pg-migrate up -m src/db/migrations --envPath .env.test",
     "pretest": "pnpm run migrate:test:up",
-    "test": "NODE_ENV=test jest"
+    "test": "NODE_ENV=test jest --runInBand"
   },
   "repository": {
     "type": "git",
